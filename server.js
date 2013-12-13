@@ -83,7 +83,11 @@ app.get('*', function(req, res){
 			res.send(500,'Error loading '+req.url);
 		});
 	else if(ext == '.js')
-		fs.readFile(__dirname+req.url,{encoding: res.charset},function(err,data){
+		if(req.url.substr(req.url.lastIndexOf('.',req.url.length-4)) == '.min.js')
+			res.sendfile(__dirname+req.url,function(err){
+				res.send(500,'Error loading '+req.url);
+			});
+		else fs.readFile(__dirname+req.url,{encoding: res.charset},function(err,data){
 		    if (err) 
     		  res.send(500,'Error loading '+req.url);
     		else res.send(pro.gen_code(pro.ast_squeeze(pro.ast_mangle(jsp.parse(data)))));
