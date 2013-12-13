@@ -16,6 +16,7 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
+  , UglifyJS = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js')
   , connect = require('express/node_modules/connect')
   , cookie = require('express/node_modules/cookie')
   , MongoClient = require('mongodb').MongoClient
@@ -75,10 +76,14 @@ app.get('/conference', function(req, res){	//can be changed to app.engine to use
 app.get('*', function(req, res){
 	res.charset = 'utf-8';
 	var ext = req.url.substr(req.url.lastIndexOf('.'));
-	if(ext == '.js' || ext == '.css' || ext == '.png')
+	if(ext == '.css' || ext == '.png')
 		res.sendfile(__dirname+req.url,function(err){
 			res.send(500,'Error loading '+req.url);
 		});
+	else if(ext == '.js'){
+		var result = UglifyJS.minify(__dirname+req.url);
+		res.send(result.code);
+	}
 	else res.send(500,'Error loading '+req.url);
 });
 
