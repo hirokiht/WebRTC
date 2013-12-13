@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WebRTC</title>
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/conference.css">
+<script src="js/adapter.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/pc.js"></script>
+<script src="js/conference.js"></script>
+</head>
+<body>
+<div id="overlay">
+	<div id="overlay_content">
+		Kindly allow webcam access!
+	</div>
+</div>
+<div id="main">
+	<div id="sidevidout">
+		<div id="sidevidin">
+		</div>
+	</div>
+	<div id="vidbox">
+		<video id="vid2" autoplay muted></video>
+		<video id="vid1" autoplay></video>
+		<div id="endcall">End Call</div>
+	</div>
+</div>
+<div id="friendlist">
+	<header>Select friends to join...</header>
+	<ul id="friends">
+	</ul>
+	<select id="status" class="fa">
+		<option value="online" id="online">&#xf058; Online</option>
+		<option value="offline" id="offline">&#xf056; Offline</option>
+	</select>
+</div>
+<form id="chatbox">
+	<div id="content">
+		<p class="fa fa-comments-o"> Message here will broadcast to all participants!</p>
+	</div>
+	<div id="controls">
+		<button type="submit" class="fa fa-envelope-o"> Send</button>
+		<div><textarea name="msg"></textarea></div>
+	</div>
+</form>
+</body>
+</html>

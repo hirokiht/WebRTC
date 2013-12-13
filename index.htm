@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WebRTC</title>
+<link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.min.css" />
+<link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="css/style.css">
+<script src="js/jquery-1.10.2.min.js"></script>
+<script src="js/jquery-ui-1.10.3.custom.min.js"></script>
+<script src="js/adapter.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="js/pc.js"></script>
+<script src="js/script.js"></script>
+</head>
+<body>
+<div id="main">
+	<div id="vidbox">
+		<p id="waiting">Select a friend to call...</p>
+		<video id="vid1" autoplay></video>
+		<video id="vid2" autoplay muted></video>
+		<div id="endcall"><i class="fa fa-phone fa-1g fa-rotate-90">&nbsp;</i>&nbsp;End Call</div>
+	</div>
+	<div id="chatbox">
+		<div id="chattabs" class="tabs-bottom">
+			<ul class="ui-corner-bottom">
+			</ul>
+		</div>
+	</div>
+</div>
+<div id="friendlist">
+	<header>Friends ~.~</header>
+	<ul id="friends">
+	</ul>
+	<button id="conference" class="fa fa-users"> Start Conference</button>
+	<select id="status" class="fa">
+		<option value="online" id="online">&#xf058; Online</option>
+		<option value="offline" id="offline">&#xf056; Offline</option>
+	</select>
+</div>
+<div id="confirm" title="&#xf0c0; Join conference with: ">
+</div>
+</body>
+</html>
