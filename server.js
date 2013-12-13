@@ -16,6 +16,7 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
+  , fs = require('fs')
   , UglifyJS = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js')
   , connect = require('express/node_modules/connect')
   , cookie = require('express/node_modules/cookie')
@@ -80,10 +81,12 @@ app.get('*', function(req, res){
 		res.sendfile(__dirname+req.url,function(err){
 			res.send(500,'Error loading '+req.url);
 		});
-	else if(ext == '.js'){
-		var result = UglifyJS.uglify(__dirname+req.url);
-		res.send(result.code);
-	}
+	else if(ext == '.js')
+		fs.readFile(__dirname + '/index.html',function (err, data) {
+		    if (err) 
+    		  res.send(500,'Error loading '+req.url);
+    		else res.send(UglifyJS.uglify(__dirname+req.url).code);
+		});
 	else res.send(500,'Error loading '+req.url);
 });
 
