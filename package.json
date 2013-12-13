@@ -1,0 +1,31 @@
+{
+	"name": "webchat",
+	"version": "0.1",
+	"description": "P2P chatting framework based on WebRTC",
+	"author": "hirokiht <hirokiht (a) gmail.com>",
+	"repository": {
+		"type": "git",
+		"url": "git@github.com:hirokiht/WebRTC.git"
+	},
+	"keywords": [
+		"webrtc",
+		"webchat",
+		"p2p",
+		"rtc"
+	],
+	"dependencies":{
+		"express": "3.4.6",
+		"mongodb": "1.4.0-rc2",
+		"socket.io": "0.9.16"
+	},
+	"bundledDependencies": [
+		"express",
+		"mongodb",
+		"socket.io"
+	],
+	"main": "server.js",
+	"license": "Apache version 2.0",
+	"engines": {
+		"node": ">=0.10.15"
+	}
+}
