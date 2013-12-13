@@ -17,7 +17,8 @@ var express = require('express')
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
   , fs = require('fs')
-  , UglifyJS = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js')
+  , jsp = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js').parser
+  , pro = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js').uglify
   , connect = require('express/node_modules/connect')
   , cookie = require('express/node_modules/cookie')
   , MongoClient = require('mongodb').MongoClient
@@ -82,10 +83,10 @@ app.get('*', function(req, res){
 			res.send(500,'Error loading '+req.url);
 		});
 	else if(ext == '.js')
-		fs.readFile(__dirname+req.url,function(err,data){
+		fs.readFile(__dirname+req.url,{encoding: res.charset},function(err,data){
 		    if (err) 
     		  res.send(500,'Error loading '+req.url);
-    		else res.send(UglifyJS.uglify(data).code);
+    		else res.send(pro.gen_code(pro.ast_squeeze(pro.ast_mangle(jsp.parse(data)))));
 		});
 	else res.send(500,'Error loading '+req.url);
 });
