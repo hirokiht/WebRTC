@@ -82,10 +82,10 @@ app.get('*', function(req, res){
 			res.send(500,'Error loading '+req.url);
 		});
 	else if(ext == '.js')
-		fs.readFile(__dirname + '/index.html',function (err, data) {
+		fs.readFile(__dirname+req.url,function(err,data){
 		    if (err) 
     		  res.send(500,'Error loading '+req.url);
-    		else res.send(UglifyJS.uglify(__dirname+req.url).code);
+    		else res.send(UglifyJS.uglify(data).code);
 		});
 	else res.send(500,'Error loading '+req.url);
 });
