@@ -81,7 +81,7 @@ app.get('*', function(req, res){
 			res.send(500,'Error loading '+req.url);
 		});
 	else if(ext == '.js'){
-		var result = UglifyJS.minify(__dirname+req.url);
+		var result = UglifyJS.uglify(__dirname+req.url);
 		res.send(result.code);
 	}
 	else res.send(500,'Error loading '+req.url);
