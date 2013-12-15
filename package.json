@@ -1,6 +1,6 @@
 {
 	"name": "webchat",
-	"version": "0.1",
+	"version": "0.1.1",
 	"description": "P2P chatting framework based on WebRTC",
 	"author": "hirokiht <hirokiht (a) gmail.com>",
 	"repository": {
@@ -23,6 +23,9 @@
 		"mongodb",
 		"socket.io"
 	],
+	"scripts": {
+    	"start": "nodejs server.js"
+	},
 	"main": "server.js",
 	"license": "Apache version 2.0",
 	"engines": {

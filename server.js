@@ -16,17 +16,18 @@ var express = require('express')
   , app = express()
   , server = require('http').createServer(app)
   , io = require('socket.io').listen(server)
-  , fs = require('fs')
-  , jsp = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js').parser
-  , pro = require('socket.io/node_modules/socket.io-client/node_modules/uglify-js').uglify
   , connect = require('express/node_modules/connect')
   , cookie = require('express/node_modules/cookie')
   , MongoClient = require('mongodb').MongoClient
   , crypto = require('crypto')
   , collection = null;
+  
 
 server.listen(80);
 
+app.use(express.compress());	//compress content before sending to browser
+app.use('/js',express.static(__dirname+'/js'));
+app.use('/css',express.static(__dirname+'/css'));
 //app.use(express.bodyParser());//for Connect-3.0
 app.use(express.json());		//for Connect-2.X
 app.use(express.urlencoded());	//for Connect-2.X
@@ -51,48 +52,33 @@ app.get('/',function(req, res){
   if(!req.session || !req.session.name)
 	res.redirect('/login');
   else res.sendfile(__dirname+'/index.htm',function(err){
-		res.send(500,'Error loading '+req.url);
+		if(err)
+			res.send(500,'Error loading '+req.url);
 	});
 });
 app.get('/login', function(req, res){	//can be changed to app.engine to use view that enables caching
   if(req.session && req.session.name)
 	res.redirect('/');
   else res.sendfile(__dirname+'/login.htm',function(err){
-		res.send(500,'Error loading '+req.url);
+		if(err)
+			res.send(500,'Error loading '+req.url);
   	});
 });
 app.get('/register', function(req, res){	//can be changed to app.engine to use view that enables caching
   if(req.session && req.session.name)
 	res.redirect('/');
   else res.sendfile(__dirname+'/register.htm',function(err){
-		res.send(500,'Error loading '+req.url);
+		if(err)
+			res.send(500,'Error loading '+req.url);
   	});
 });
 app.get('/conference', function(req, res){	//can be changed to app.engine to use view that enables caching
   if(req.session && req.session.name)
 	res.sendfile(__dirname+'/conference.htm',function(err){
-		res.send(500,'Error loading '+req.url);
+		if(err)
+			res.send(500,'Error loading '+req.url);
   	});
   else	res.redirect('/login');
-});
-app.get('*', function(req, res){
-	res.charset = 'utf-8';
-	var ext = req.url.substr(req.url.lastIndexOf('.'));
-	if(ext == '.css' || ext == '.png')
-		res.sendfile(__dirname+req.url,function(err){
-			res.send(500,'Error loading '+req.url);
-		});
-	else if(ext == '.js')
-		if(req.url.substr(req.url.lastIndexOf('.',req.url.length-4)) == '.min.js')
-			res.sendfile(__dirname+req.url,function(err){
-				res.send(500,'Error loading '+req.url);
-			});
-		else fs.readFile(__dirname+req.url,{encoding: res.charset},function(err,data){
-		    if (err) 
-    		  res.send(500,'Error loading '+req.url);
-    		else res.send(pro.gen_code(pro.ast_squeeze(pro.ast_mangle(jsp.parse(data)))));
-		});
-	else res.send(500,'Error loading '+req.url);
 });
 
 app.post('/login', function(req, res){
