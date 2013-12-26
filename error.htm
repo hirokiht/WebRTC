@@ -74,6 +74,12 @@ body {
   margin: 20px 0 0;
 }
 
+.login #invalid {
+  margin-bottom: -20px;
+  font-weight: bold;
+  color: red;
+}
+
 .login p:first-child {
   margin-top: 0;
 }
@@ -191,6 +197,7 @@ input[type=submit]:active {
   <div class="login">
     <h1>Login to Web App</h1>
     <form method="post" action="/login">
+      <p id="invalid">Invalid user/password!</p>
       <p><input type="text" name="uid" value="" placeholder="Username or Email"></p>
       <p><input type="password" name="pw" value="" placeholder="Password"></p>
       <p class="remember_me">

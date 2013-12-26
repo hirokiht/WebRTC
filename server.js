@@ -57,12 +57,18 @@ app.get('/',function(req, res){
 	});
 });
 app.get('/login', function(req, res){	//can be changed to app.engine to use view that enables caching
+console.log(JSON.stringify(req.query.err));
   if(req.session && req.session.name)
 	res.redirect('/');
-  else res.sendfile(__dirname+'/login.htm',function(err){
+  else if(req.query.err != undefined)
+  	res.sendfile(__dirname+'/error.htm',function(err){
 		if(err)
 			res.send(500,'Error loading '+req.url);
   	});
+  else res.sendfile(__dirname+'/login.htm',function(err){
+		if(err)
+			res.send(500,'Error loading '+req.url);
+  });
 });
 app.get('/register', function(req, res){	//can be changed to app.engine to use view that enables caching
   if(req.session && req.session.name)
@@ -91,7 +97,7 @@ app.post('/login', function(req, res){
 	  req.session.name = req.body.uid;
 	  res.cookie('name',req.body.uid, {signed: true});
 	  res.redirect('/');
-	}else res.redirect('/login');
+	}else res.redirect('/login?err');
   });
 });
 
