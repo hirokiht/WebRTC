@@ -15,8 +15,8 @@
 var socket = io.connect(window.location.href)
   , videoPC = null	//video peerConnection
   , dataPCs = new Array()
-  , conWin = null			//Conference window reference
-  , buffer = null;			//buffer to transfer argument to new window
+  , conWin = null, bsWin = null			//Conference window reference
+  , buffer = null, buffer2 = null;		//buffer to transfer argument to new window
 
 function signalCh(data){
 	var self = this;
@@ -29,13 +29,12 @@ function signalCh(data){
 			console.log('Sending offer to '+this.peer);
 			socket.emit('offer', {callee: this.peer, type: this.type, rtc: data},function(answer){
 				if(answer == null){
-					if(self.type == 'conference' && conWin && !conWin.closed){
-						self.end(self.peer+' failed to provide valid answer!');
+					self.end(self.peer+' failed to provide valid answer!');
+					if(self.type == 'conference' && conWin && !conWin.closed)
 						conWin.alert(self.peer+' is unavailable right now!');
-					}else{
-						self.end(self.peer+' failed to provide valid answer!');
-						alert(self.peer+' is unavailable right now!');
-					}
+					else if(self.type == 'brainstorm' && bsWin && !bsWin.closed)
+						bsWin.alert(self.peer+' is unavailable right now!');
+					else alert(self.peer+' is unavailable right now!');
 				}else self.setAnswer(answer);
 			});
 		}
@@ -97,12 +96,16 @@ socket.on('connect', function(){
 		console.log('Socket connected!');
 		if(conWin && !conWin.closed)
 			conWin.connected();
+		if(bsWin && !bsWin.closed)
+			bsWin.connected();
 	},function(err){
 		document.getElementById('friendlist').style.color = '#BBB';
 		document.getElementById('status').selectedIndex = 1;
 		console.log('Connection failed! Error: '+JSON.stringify(err));
 		if(conWin && !conWin.closed)
 			conWin.disconnected(err);
+		if(bsWin && !bsWin.closed)
+			bsWin.disconnected(err);
 	});
 
 socket.on('bye',function(data){
@@ -113,6 +116,8 @@ socket.on('bye',function(data){
 		dataPCs[data.peer].end('Received bye from '+data.peer);
 	if(conWin && !conWin.closed && data.type == 'conference')
 		conWin.bye(data.peer);
+	if(bsWin && !bsWin.closed && data.type == 'brainstorm')
+		bsWin.bye(data.peer);
 });
 
 socket.on('ice',function(data){
@@ -123,6 +128,8 @@ socket.on('ice',function(data){
 		dataPCs[data.peer].addIceCandidate(data.candidate);
 	if(conWin && !conWin.closed)
 		conWin.ice(data);
+	if(bsWin && !bsWin.closed)
+		bsWin.ice(data);
 });
 
 socket.on('online',function(data){
@@ -148,6 +155,8 @@ socket.on('online',function(data){
 	document.getElementById('friends').appendChild(friend);
 	if(conWin && !conWin.closed)
 		conWin.online(data);
+	if(bsWin && !bsWin.closed)
+		bsWin.online(data);
 });
 
 socket.on('offline',function(data){
@@ -155,6 +164,8 @@ socket.on('offline',function(data){
 		document.getElementById('friends').removeChild(document.getElementById('friend_'+data));
 	if(conWin && !conWin.closed)
 		conWin.offline(data);
+	if(bsWin && !bsWin.closed)
+		bsWin.offline(data);
 });
 
 socket.on('disconnect',function(){
@@ -164,6 +175,8 @@ socket.on('disconnect',function(){
 	console.log('Server connection disconnected!');
 	if(conWin && !conWin.closed)
 		conWin.close();
+	if(bsWin && !bsWin.closed)
+		bsWin.close();
 });
 
 socket.on('offer',function(data,fn){
@@ -192,6 +205,11 @@ socket.on('offer',function(data,fn){
 				fn(null);
 				console.log('Not READY for conference!!!!');
 			}else conWin.offer(data,fn);
+		}else if(data.type == 'brainstorm'){
+			if(!bsWin || bsWin.closed){
+				fn(null);
+				console.log('Not READY for brainstorm!!!');
+			}else bsWin.offer(data,fn);
 		}else console.log('Unsupported offer type: '+data.type);
 	}
 });
@@ -220,6 +238,32 @@ socket.on('conference',function(data){
 			});
 		}
 	}else conWin.conference(data);
+});
+
+socket.on('brainstorm',function(data){
+	if(!Array.isArray(data)){
+		console.log('Invalid brainstorm data');
+		return;
+	}
+	if(!bsWin || bsWin.closed){
+		if(dialogIsOpen && buffer2 != null && Array.isArray(buffer2)){
+			if(buffer2.indexOf(data[0]) != -1){
+				for(var i = 0 ; i < data.length ; i++)
+					if(buffer2.indexOf(data[i]) == -1)
+						buffer2.push(data[i]);
+				document.getElementById('confirm2').innerHTML = data.toString();
+				showDialog2(function(){
+					bsWin = window.open('/brainstorm','brainstorm','menubar=no,status=no');
+				});
+			}else console.log('Pending brainstorm request unresolved yet, reject current request');
+		}else{
+			buffer2 = data;
+			document.getElementById('confirm2').innerHTML = data.toString();
+			showDialog2(function(){
+				bsWin = window.open('/brainstorm','brainstorm','menubar=no,status=no');
+			});
+		}
+	}else bsWin.conference(data);
 });
 
 function videoCall(callee){
@@ -295,6 +339,13 @@ function showDialog(acceptCB,denyCB){
 	$('#confirm').dialog('open');
 }
 
+function showDialog2(acceptCB,denyCB){
+	if(dialogIsOpen())
+		$('#confirm2').dialog('close');
+	updateDialog2(acceptCB,denyCB);
+	$('#confirm2').dialog('open');
+}
+
 function updateDialog(acceptCB,denyCB){
 	var buttons = $('#confirm').dialog('option','buttons');
 	if(typeof acceptCB == 'function')
@@ -308,6 +359,21 @@ function updateDialog(acceptCB,denyCB){
 			$(this).dialog('close');
 		}
 	$('#confirm').dialog('option','buttons',buttons);
+}
+
+function updateDialog2(acceptCB,denyCB){
+	var buttons = $('#confirm2').dialog('option','buttons');
+	if(typeof acceptCB == 'function')
+		buttons[0].click = function(){
+			acceptCB();
+			$(this).dialog('close');
+		}
+	if(typeof denyCB == 'function')
+		buttons[1].click = function(){
+			denyCB();
+			$(this).dialog('close');
+		}
+	$('#confirm2').dialog('option','buttons',buttons);
 }
 
 $(function() {
@@ -352,6 +418,26 @@ $(function() {
 		}],
 		show: true
 	});
+	$('#confirm2').dialog({
+		resizable: false,
+		draggable: false,
+		closeOnEscape: false,
+		autoOpen: false,
+		modal: true,
+		buttons: [{
+			text: 'Accept',
+			icons: {primary: 'ui-icon-check'},
+			click: function(){
+				$(this).dialog('close');
+			}
+		},{ text: 'Decline',
+			icons: {primary: 'ui-icon-closethick'},
+			click: function(){
+				$(this).dialog('close');
+			}
+		}],
+		show: true
+	});
 });
 
 window.onbeforeunload = function(){
@@ -367,6 +453,11 @@ window.onload = function(){
 		if(conWin && !conWin.closed)
 			conWin.focus();
 		else conWin = window.open('/conference','conference','menubar=no,status=no');
+	}
+	document.getElementById('brainstorm').onclick = function(){
+		if(bsWin && !bsWin.closed)
+			bsWin.focus();
+		else bsWin = window.open('/brainstorm','brainstorm','menubar=no,status=no');
 	}
 }
 

@@ -1,0 +1,222 @@
+html, body{
+	width: 100%;
+}
+
+html, body, #main, #friendlist{
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+#overlay{
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	background: #333;
+	opacity: 0.8;
+}
+
+#overlay_content{
+	position: relative;
+	top: 40%;
+	width: 40%;
+	padding: 10px 0px;
+	background-color: white;
+	text-align: center;
+	margin: 0 auto;
+	border-radius: 5px;
+}
+
+#main{
+	float: left;
+	width: 64%;
+	height: 70%;
+	background-color: #333;
+}
+
+#friendlist{
+	float: right;
+	width: 20%;
+	background-color: Lavender;
+	cursor: default;
+}
+
+#friendlist header{
+	height: 5%;
+	width: 100%;
+	font-size: 3vh;
+	border-bottom: 1px solid #BBB;
+	overflow: hidden;
+}
+
+#waiting{
+	width: 100%;
+	float:right;
+	position: relative;
+	top: 50%;
+	text-align:center;
+	margin: 0;
+}
+
+#endcall{
+	background: red;
+	color: white;
+	font-family: Arial, Sans;
+	font-weight: bold;
+	padding: 10px;
+	width: 20%;
+	margin: 0 auto;
+	text-align: center;
+	position: relative;
+	border-radius: 20px;
+	top: 70%;
+	opacity: 0.7;
+	z-index: 1;	/*keep it above chatbox*/
+	cursor: pointer;
+	transition: opacity 0.3s;
+	box-shadow: 1px 1px 2px 2px #111;
+	display: none;
+}
+
+#endcall:hover{
+	opacity: 1;
+}
+
+#endcall:active{
+	box-shadow: 0px 0px 1px 1px #111;
+}
+
+#endcall i{
+	vertical-align: middle;
+}
+
+#friendlist #friends{
+	list-style: none outside none;
+	padding: 0;
+	margin: 0;
+	height: 90%;
+}
+
+#friends li{
+	cursor: pointer;
+	padding: 0.5em;
+}
+
+#friends li button{
+	display: none;
+	float: right;
+}
+
+#friends li:hover, .onCall{
+	background-color: lightskyblue;
+}
+
+#friends li:hover button, #friendlist li.onCall button{
+	display: inline;
+}
+
+#logon{
+	visibility: visible;
+}
+
+#vid2{
+	width: 100%;
+    transform: scale(-1,1);	/*flip horizontal*/
+    -ms-transform: scale(-1,1);
+    -webkit-transform: scale(-1,1);
+}
+
+#drawbox{
+	float:left;
+	width: 100%;
+	height: 100%;
+}
+
+#drawbox canvas{
+	border:1px solid black;
+}
+
+#sidevidout{
+	float: left;
+	width: 16%;
+	height: 70%;
+	overflow: auto;
+}
+
+#sidevidin{
+	border-right: 1px solid white;
+}
+
+#sidevidin video{
+	width:100%;
+	cursor: pointer;
+}
+
+#chatbox{
+	float:left;
+	width: 80%;
+	height: 30%;	/*must be used for tabbing*/
+	font-size: 80%;
+	background-color: white;
+	border-radius: 5px 5px 0px 0px;
+}
+
+#chatbox p{
+	border-bottom: 1px solid #CCC;
+}
+
+#chatbox #content{
+	height: 80%;
+	overflow: auto;
+}
+
+#chatbox #controls{
+	margin: 0;
+	padding: 0;
+	height: 20%;
+	overflow: hidden;
+}
+
+#chatbox #controls div{
+	margin: 0% 15% 0% 0%;
+	padding: 0;
+	height: 100%;
+}
+
+#chatbox #controls textarea{
+	resize: none;
+	margin: 0;
+	width: 100%;
+	height: 80%;
+}
+
+#chatbox #controls button{
+	float: right;
+	width: 14%;			/*1% left for borders*/
+	height: 100%;
+	white-space: nowrap;
+	font-size: 3vh;
+	vertical-align: top;
+}
+
+#status{
+	width: 100%;
+	height: 5%;
+	font-size: 14px;
+}
+
+#status option{
+	font-weight: normal;
+	padding: 0.5em;
+}
+
+#status #offline, #status.offline{
+	color: white;
+	background-color: grey;
+}
+
+#status, #status option:active, #status option.now{
+	font-weight: bold;
+}

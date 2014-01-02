@@ -208,10 +208,19 @@ li:hover button, .onCall button{
 .tabs-bottom .ui-tabs-nav li span:hover {
 	color: #666;
 }
+#brainstorm{
+	position: absolute;
+	bottom: 5em;
+	height: 3em;
+	padding: 0.5em;
+	width: 100%;
+	font-size: 14px;
+}
 
 #conference{
 	position: absolute;
 	bottom: 2em;
+	height: 3em;
 	padding: 0.5em;
 	width: 100%;
 	font-size: 14px;

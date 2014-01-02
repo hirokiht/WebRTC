@@ -57,7 +57,6 @@ app.get('/',function(req, res){
 	});
 });
 app.get('/login', function(req, res){	//can be changed to app.engine to use view that enables caching
-console.log(JSON.stringify(req.query.err));
   if(req.session && req.session.name)
 	res.redirect('/');
   else if(req.query.err != undefined)
@@ -81,6 +80,14 @@ app.get('/register', function(req, res){	//can be changed to app.engine to use v
 app.get('/conference', function(req, res){	//can be changed to app.engine to use view that enables caching
   if(req.session && req.session.name)
 	res.sendfile(__dirname+'/conference.htm',function(err){
+		if(err)
+			res.send(500,'Error loading '+req.url);
+  	});
+  else	res.redirect('/login');
+});
+app.get('/brainstorm', function(req, res){	//can be changed to app.engine to use view that enables caching
+  if(req.session && req.session.name)
+	res.sendfile(__dirname+'/brainstorm.htm',function(err){
 		if(err)
 			res.send(500,'Error loading '+req.url);
   	});
@@ -206,6 +213,20 @@ io.sockets.on('connection', function (socket) {
 	  		var arr = participants.slice(0);	//clone
 	  		arr.splice(i,1);					//remove the participant himself
 			io.sockets.sockets[io.sockets.sockets[participants[i]]].emit('conference',arr);
+		}
+  });
+  socket.on('brainstorm',function(participants){
+  	if(!Array.isArray(participants))
+  		return;	//data parsed is not array
+  	if(participants.indexOf(socket.handshake.name) == -1)
+	  	participants.unshift(socket.handshake.name);			//add sender to array
+	else if(participants.indexOf(socket.handshake.name) != 0)
+		participants[0] = participants.splice(participants.indexOf(socket.handshake.name),1,participants[0])[0];	//swap sender to [0]
+  	for(var i = 0 ; i < participants.length ; i++)
+	  	if(typeof participants[i] == 'string' && participants[i] != socket.handshake.name && io.sockets.sockets[participants[i]] && io.sockets.sockets[io.sockets.sockets[participants[i]]]){
+	  		var arr = participants.slice(0);	//clone
+	  		arr.splice(i,1);					//remove the participant himself
+			io.sockets.sockets[io.sockets.sockets[participants[i]]].emit('brainstorm',arr);
 		}
   });
 });
