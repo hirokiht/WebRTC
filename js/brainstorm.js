@@ -32,11 +32,7 @@ function signalCh(data){
 			window.opener.socket.emit('offer', {callee: this.peer, type: 'brainstorm', rtc: data},function(answer){
 				if(answer == null){
 					self.end(self.peer+' failed to provide valid answer!');
-					if(self.type == 'conference' && conWin && !conWin.closed)
-						conWin.alert(self.peer+' is unavailable right now!');
-					else if(self.type == 'brainstorm' && bsWin && !bsWin.closed)
-						bsWin.alert(self.peer+' is unavailable right now!');
-					else alert(self.peer+' is unavailable right now!');
+					alert(self.peer+' is unavailable right now!');
 				}else self.setAnswer(answer);
 			});
 		}
