@@ -265,6 +265,8 @@ window.onload = function(){
 	if(!window || !window.opener)
 		window.location = window.location.protocol+'//'+window.location.hostname;	//redirect to homepage
 	document.getElementById('status').onchange = window.opener.document.getElementById('status').onchange;
+	window.moveTo(0,0);
+	window.resizeTo(screen.availWidth,screen.availHeight);
 	var lis = window.opener.document.getElementById('friends').getElementsByTagName('li');
 	for(var i = 0 ; i < lis.length ; i++)
 		online(lis[i].title);
