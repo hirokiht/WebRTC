@@ -1,5 +1,4 @@
 #WebRTC
-======
 A complete open source framework for video chatting and conference based on WebRTC
 
 ##WebRTC specification:
