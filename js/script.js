@@ -220,7 +220,7 @@ socket.on('conference',function(data){
 		return;
 	}
 	if(!conWin || conWin.closed){
-		if(dialogIsOpen && buffer != null && Array.isArray(buffer)){
+		if(dialogIsOpen() && buffer != null && Array.isArray(buffer)){
 			if(buffer.indexOf(data[0]) != -1){
 				for(var i = 0 ; i < data.length ; i++)
 					if(buffer.indexOf(data[i]) == -1)
@@ -246,7 +246,7 @@ socket.on('brainstorm',function(data){
 		return;
 	}
 	if(!bsWin || bsWin.closed){
-		if(dialogIsOpen && buffer2 != null && Array.isArray(buffer2)){
+		if(dialogIsOpen2() && buffer2 != null && Array.isArray(buffer2)){
 			if(buffer2.indexOf(data[0]) != -1){
 				for(var i = 0 ; i < data.length ; i++)
 					if(buffer2.indexOf(data[i]) == -1)
@@ -332,6 +332,10 @@ function dialogIsOpen(){
 	return $('#confirm').dialog('isOpen');
 }
 
+function dialogIsOpen2(){
+	return $('#confirm').dialog('isOpen');
+}
+
 function showDialog(acceptCB,denyCB){
 	if(dialogIsOpen())
 		$('#confirm').dialog('close');
@@ -340,7 +344,7 @@ function showDialog(acceptCB,denyCB){
 }
 
 function showDialog2(acceptCB,denyCB){
-	if(dialogIsOpen())
+	if(dialogIsOpen2())
 		$('#confirm2').dialog('close');
 	updateDialog2(acceptCB,denyCB);
 	$('#confirm2').dialog('open');
