@@ -47,10 +47,9 @@ function remoteMediaCallback(remoteData){
 			document.getElementById('sidevidin').removeChild(document.getElementById('vid_'+this.peer));
 		if(document.getElementById('vid1').title == this.peer)
 			reattachMediaStream(document.getElementById('vid1'),document.getElementById('sidevidin').firstChild);
-		console.log('delete pc: '+this.peer);
-//		PCs[this.peer] = null;
 		delete PCs[this.peer];
-	}else console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));
+	}else if(!remoteData.dataCh)
+		console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));
 }
 
 function connected(){

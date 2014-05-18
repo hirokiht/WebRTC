@@ -29,12 +29,13 @@ function signalCh(data){
 			console.log('Sending offer to '+this.peer);
 			socket.emit('offer', {callee: this.peer, type: this.type, rtc: data},function(answer){
 				if(answer == null){
-					self.end(self.peer+' failed to provide valid answer!');
+					var peer = self.peer;
+					self.end(peer+' failed to provide valid answer!');
 					if(self.type == 'conference' && conWin && !conWin.closed)
-						conWin.alert(self.peer+' is unavailable right now!');
+						conWin.alert(peer+' is unavailable right now!');
 					else if(self.type == 'brainstorm' && bsWin && !bsWin.closed)
-						bsWin.alert(self.peer+' is unavailable right now!');
-					else alert(self.peer+' is unavailable right now!');
+						bsWin.alert(peer+' is unavailable right now!');
+					else alert(peer+' is unavailable right now!');
 				}else self.setAnswer(answer);
 			});
 		}

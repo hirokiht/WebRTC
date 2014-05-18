@@ -136,6 +136,8 @@ function pc(peer, type, signal){
 				self.localMediaCb('enable');
 			else if(self.type == 'video')
 				self.keepAliveInterval = setInterval(keepalive,2000);	//keepalive interval
+			else if(self.type == 'conference')
+				self.remoteMediaCb({dataCh:'open'});
 		}
 		this.dataCh.onclose = function(){
 			if(self.type == 'data' && typeof self.localMediaCb == 'function')

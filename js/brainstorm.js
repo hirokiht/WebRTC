@@ -18,7 +18,8 @@ var PCs = new Array()		//conference peerConnection
   , localstream = null
   , offerBuffer = new Array()
   , board = null
-  , eventBuffer = new Array();
+  , eventBuffer = new Array()
+  , inviter = null;
 
 function signalCh(data){
 	var self = this;
@@ -58,14 +59,22 @@ function remoteMediaCallback(remoteData){
 			msg.innerHTML = this.peer+': '+obj.msg;
 			document.getElementById('content').appendChild(msg);
 			document.getElementById('content').scrollTop = document.getElementById('content').scrollHeight;	//scroll to bottom
-		}else if(Array.isArray(obj)){
-			var intv = processArray(obj);
+		}else if(obj.img)
+			if(obj.img == 'request')
+				PCs[this.peer].dataCh.send(JSON.stringify({img:board.getImg()}));
+			else board.setImg(obj.img);
+		else if(Array.isArray(obj)){
+			processArray(obj);
 		}else console.log('Invalid String Data: '+remoteData);
 	}else if(remoteData == null){				//ending call
 		if(document.getElementById('vid_'+this.peer))
 			document.getElementById('sidevidin').removeChild(document.getElementById('vid_'+this.peer));
 		delete PCs[this.peer];
-	}else console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));
+	}else if(remoteData.dataCh && remoteData.dataCh == 'open' && this.peer == participants[0] && !inviter){
+		PCs[this.peer].dataCh.send('{"img":"request"}');
+		inviter = true;
+	}else if(!remoteData.dataCh)
+		console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));
 }
 
 function processArray(arr){
@@ -184,6 +193,7 @@ function invite(invitee){
 	if(participants.indexOf(invitee) == -1)
 		participants.push(invitee);
 	window.opener.socket.emit('brainstorm',participants);
+	inviter = true;
 }
 
 function conference(data){
@@ -226,7 +236,7 @@ function sendAll(obj){
 					if(last)
 						eventBuffer.push(last);
 					eventBuffer.push(obj);
-				}else if(obj.e.type == 'mouseup' || obj.e.type == 'touchend' || obj.length >= 10){
+				}else if(obj.e.type == 'mouseup' || obj.e.type == 'touchend' || obj.length > 20){
 					eventBuffer.push(obj);
 					PCs[key].dataCh.send(JSON.stringify(eventBuffer));
 					eventBuffer.length = 0;	//clear buffer
