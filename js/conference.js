@@ -47,6 +47,9 @@ function remoteMediaCallback(remoteData){
 			document.getElementById('sidevidin').removeChild(document.getElementById('vid_'+this.peer));
 		if(document.getElementById('vid1').title == this.peer)
 			reattachMediaStream(document.getElementById('vid1'),document.getElementById('sidevidin').firstChild);
+		var i = indexOf(this.peer);
+		if(i >= 0)
+			participants.splice(i);
 		delete PCs[this.peer];
 	}else if(!remoteData.dataCh)
 		console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));

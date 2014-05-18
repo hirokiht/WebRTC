@@ -19,7 +19,8 @@ var PCs = new Array()		//conference peerConnection
   , offerBuffer = new Array()
   , board = null
   , eventBuffer = new Array()
-  , inviter = null;
+  , inviter = null
+  , eventHeader = new Array();
 
 function signalCh(data){
 	var self = this;
@@ -64,11 +65,14 @@ function remoteMediaCallback(remoteData){
 				PCs[this.peer].dataCh.send(JSON.stringify({img:board.getImg()}));
 			else board.setImg(obj.img);
 		else if(Array.isArray(obj)){
-			processArray(obj);
+			processArray(this.peer,obj);
 		}else console.log('Invalid String Data: '+remoteData);
 	}else if(remoteData == null){				//ending call
 		if(document.getElementById('vid_'+this.peer))
 			document.getElementById('sidevidin').removeChild(document.getElementById('vid_'+this.peer));
+		var i = participants.indexOf(this.peer);
+		if(i >= 0)
+			participants.splice(i);
 		delete PCs[this.peer];
 	}else if(remoteData.dataCh && remoteData.dataCh == 'open' && this.peer == participants[0] && !inviter){
 		PCs[this.peer].dataCh.send('{"img":"request"}');
@@ -77,19 +81,27 @@ function remoteMediaCallback(remoteData){
 		console.log('remoteMediaCallback doesn\'t know how to deal with '+JSON.stringify(remoteData));
 }
 
-function processArray(arr){
+function processArray(peer,arr){
 	var obj = arr.shift();
-	console.log('procesing: '+JSON.stringify(obj));
-	processEvent(obj.e,obj.coords,obj.color,obj.size);
+	console.log(peer+': '+JSON.stringify(obj));
+	if(!obj.e)
+		obj.e = eventHeader[peer];
+	else if(obj.e.type == 'touchstart' || obj.e.type == 'mousedown')
+		eventHeader[peer] = {type: obj.e.type == 'touchstart'? 'touchmove' : 'mousemove', pageX: obj.e.pageX, pageY: obj.e.pageY };
+	else console.log('Obj evnt type:'+obj.e.type);
+	if(obj.e)
+		processEvent(obj.e,obj.coords,obj.color,obj.size);
 	if(arr.length && obj)
-		setTimeout(function(){processArray(arr)},1);	//must delay if not it is not rendered, could be browser specific
+		setTimeout(function(){processArray(peer,arr)},1);	//must delay if not it is not rendered, could be browser specific
 }
 
 function processEvent(e,coord,color,size){
 	e.preventDefault = function(){};
 	var strokeStyle = board.ctx.strokeStyle, lineWidth = board.ctx.lineWidth;
-	board.ctx.strokeStyle = color;
-	board.ctx.lineWidth = size;
+	if(color)
+		board.ctx.strokeStyle = color;
+	if(size)
+		board.ctx.lineWidth = size;
 	if(e.type == 'touchstart' || e.type == 'mousedown')
 		board._onInputStart(e,coord);
 	else if(e.type == 'touchmove' || e.type == 'mousemove')
@@ -180,8 +192,12 @@ function offer(data,fn){
 			console.log('Already establishing connection with '+data.caller+', restart connection');
 			PCs[data.caller].restart(localstream,remoteMediaCallback,data.rtc,fn);
 		}else{
-			console.log('Already have an established connection with '+data.caller+', reject new connection!');
-			fn(null);
+//			console.log('Already have an established connection with '+data.caller+', reject new connection!');
+//			fn(null);
+			console.log('Already established connection with '+data.caller+', restart connection');
+			PCs[data.caller].end('reset connection');
+			PCs[data.caller] = new pc(data.caller,'conference',signalCh);
+			PCs[data.caller].start(localstream,remoteMediaCallback,data.rtc,fn);
 		}
 }
 
@@ -229,14 +245,14 @@ function sendMsg(){
 function sendAll(obj){
 	for(key in PCs)
 		if(PCs[key].dataCh){
-			if(obj.e){
-				if(obj.e.type == 'mousedown' || obj.e.type == 'touchstart'){
+			if(obj.coords || obj.e){
+				if(obj.e && (obj.e.type == 'mousedown' || obj.e.type == 'touchstart')){
 					var last = eventBuffer.pop();		//all the moving without drawing, take the last as starting point
 					eventBuffer.length = 0;	//clear buffer
 					if(last)
 						eventBuffer.push(last);
 					eventBuffer.push(obj);
-				}else if(obj.e.type == 'mouseup' || obj.e.type == 'touchend' || obj.length > 20){
+				}else if((obj.e && (obj.e.type == 'mouseup' || obj.e.type == 'touchend')) || obj.length > 20){
 					eventBuffer.push(obj);
 					PCs[key].dataCh.send(JSON.stringify(eventBuffer));
 					eventBuffer.length = 0;	//clear buffer
@@ -260,8 +276,14 @@ function gUM(){
 		conference(participants);
 		var options = {webStorage: false, controls: ['Color', { Size: { type: "auto" } }, {DrawingMode: {filler: false}},{ Navigation: { back: false, forward: false, reset: false } }, 'Download'	]};
 		board = new DrawingBoard.Board('drawbox',options);
-		board.dom.$canvas.on('mousedown mousemove mouseup touchend touchmove touchstart', function(evnt){
+		board.dom.$canvas.on('mousedown touchstart', function(evnt){
 			sendAll({e: {type: evnt.type, pageX: evnt.pageX? evnt.pageX : 0, pageY: evnt.pageY? evnt.pageY : 0}, coords: board._getInputCoords(evnt), color: board.ctx.strokeStyle, size: board.ctx.lineWidth});
+		});
+		board.dom.$canvas.on('mousemove touchmove', function(evnt){
+			sendAll({coords: board._getInputCoords(evnt)});
+		});
+		board.dom.$canvas.on('mouseup touchend', function(evnt){
+			sendAll({e: {type: evnt.type, pageX: evnt.pageX? evnt.pageX : 0, pageY: evnt.pageY? evnt.pageY : 0}, coords: board._getInputCoords(evnt)});
 		});
 	},function(err){
 		console.log('Get user media error: '+JSON.stringify(err));
