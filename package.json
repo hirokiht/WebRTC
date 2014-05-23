@@ -1,6 +1,6 @@
 {
 	"name": "webchat",
-	"version": "0.2.8",
+	"version": "0.3.2",
 	"description": "P2P chatting framework based on WebRTC",
 	"author": "hirokiht <hirokiht (a) gmail.com>",
 	"repository": {

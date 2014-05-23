@@ -84,13 +84,11 @@ function remoteMediaCallback(remoteData){
 function processArray(peer,arr){
 	var obj = arr.shift();
 	console.log(peer+': '+JSON.stringify(obj));
-	if(!obj.e)
-		obj.e = eventHeader[peer];
-	else if(obj.e.type == 'touchstart' || obj.e.type == 'mousedown')
-		eventHeader[peer] = {type: obj.e.type == 'touchstart'? 'touchmove' : 'mousemove', pageX: obj.e.pageX, pageY: obj.e.pageY };
-	else console.log('Obj evnt type:'+obj.e.type);
-	if(obj.e)
-		processEvent(obj.e,obj.coords,obj.color,obj.size);
+	if(obj.e && (obj.e.type == 'touchstart' || obj.e.type == 'mousedown'))
+		eventHeader[peer] = {e: {type: obj.e.type == 'touchstart'? 'touchmove' : 'mousemove', pageX: obj.e.pageX, pageY: obj.e.pageY }
+							,color: obj.color, size: obj.size};
+	if(eventHeader[peer])
+		processEvent(obj.e? obj.e : eventHeader[peer].e,obj.coords,eventHeader[peer].color,eventHeader[peer].size);
 	if(arr.length && obj)
 		setTimeout(function(){processArray(peer,arr)},1);	//must delay if not it is not rendered, could be browser specific
 }
@@ -98,10 +96,8 @@ function processArray(peer,arr){
 function processEvent(e,coord,color,size){
 	e.preventDefault = function(){};
 	var strokeStyle = board.ctx.strokeStyle, lineWidth = board.ctx.lineWidth;
-	if(color)
-		board.ctx.strokeStyle = color;
-	if(size)
-		board.ctx.lineWidth = size;
+	board.ctx.strokeStyle = color;
+	board.ctx.lineWidth = size;
 	if(e.type == 'touchstart' || e.type == 'mousedown')
 		board._onInputStart(e,coord);
 	else if(e.type == 'touchmove' || e.type == 'mousemove')
